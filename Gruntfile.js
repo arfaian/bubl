@@ -294,8 +294,15 @@ module.exports = function (grunt) {
                 'svgmin',
                 'htmlmin'
             ]
+        },
+        bower: {
+            target: {
+                rjsConfig: 'app/config.js'
+            }
         }
     });
+
+    grunt.loadNpmTasks('grunt-bower-requirejs');
 
     grunt.registerTask('serve', function (target) {
         if (target === 'dist') {
@@ -339,6 +346,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('default', [
+        'bower',
         'jshint',
         'test',
         'build'
