@@ -1,172 +1,22 @@
-<!doctype html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>bubble</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width">
-        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-        <!-- build:css(.tmp) styles/main.css -->
-        <link rel="stylesheet" href="styles/main.css">
-        <!-- endbuild -->
-        <!-- build:js scripts/vendor/modernizr.js -->
-        <script src="bower_components/modernizr/modernizr.js"></script>
-        <!-- endbuild -->
-
-        <script id="fs-convolution" type="x-shader/x-fragment">
-          varying vec2 vUv;
-
-          uniform sampler2D tDiffuse;
-          uniform vec2 uImageIncrement;
-
-          #define KERNEL_SIZE 25
-          uniform float cKernel[KERNEL_SIZE];
-
-          void main(void) {
-            vec2 imageCoord = vUv;
-            vec4 sum = vec4( 0.0, 0.0, 0.0, 0.0 );
-            for( int i=0; i < KERNEL_SIZE; ++i ) {
-              sum += texture2D( tDiffuse, imageCoord ) * cKernel[i];
-              imageCoord += uImageIncrement;
-            }
-            gl_FragColor = sum;
-          }
-        </script>
-
-        <!-- Convolution vertex shader -->
-        <script id="vs-convolution" type="x-shader/x-vertex">
-          varying vec2 vUv;
-
-          uniform vec2 uImageIncrement;
-          #define KERNEL_SIZE 25.0
-
-          void main(void) {
-            //vUv = vec2( uv.x, 1.0 - uv.y ) - ((KERNEL_SIZE - 1.0) / 2.0) *
-            uImageIncrement;
-            vUv = uv - ((KERNEL_SIZE - 1.0) / 2.0) * uImageIncrement;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-          }
-        </script>
-
-
-        <!-- Render parameter modulated texture fragment shader -->
-        <script id="fs-screen" type="x-shader/x-fragment">
-          varying vec2 vUv;
-          uniform sampler2D tDiffuse;
-          uniform float opacity;
-
-          void main(void) {
-            vec4 texel = texture2D( tDiffuse, vUv );
-            gl_FragColor = opacity * texel;
-          }
-        </script>
-
-        <!-- Generic vertex shader -->
-        <script id="vs-generic" type="x-shader/x-vertex">
-          varying vec2 vUv;
-
-          void main() {
-            vUv = vec2( uv.x, 1.0 - uv.y );
-            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-          }
-        </script>
-
-        <!-- Generic vertex shader -->
-        <script id="vs" type="x-shader/x-vertex">
-          varying vec3 vNormal;
-
-          void main() {
-            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-            vNormal = normalize( normalMatrix * normal );
-          }
-        </script>
-
-        <script id="fs" type="x-shader/x-vertex">
-          uniform vec3 uBaseColor;
-          uniform vec3 uLineColor1;
-          uniform vec3 uLineColor2;
-          uniform vec3 uLineColor3;
-          uniform vec3 uLineColor4;
-          uniform vec3 uDirLightPos;
-          uniform vec3 uDirLightColor;
-          uniform vec3 uAmbientLightColor;
-          varying vec3 vNormal;
-          void main() {
-            float directionalLightWeighting = max( dot( normalize(vNormal), uDirLightPos ), 0.0);
-            vec3 lightWeighting = uAmbientLightColor + uDirLightColor * directionalLightWeighting;
-            gl_FragColor = vec4( uBaseColor, 1.0 );
-            if ( length(lightWeighting) < 1.00 ) {
-              if ( mod(gl_FragCoord.x + gl_FragCoord.y, 10.0) == 0.0) {
-                gl_FragColor = vec4( uLineColor1, 1.0 );
-              }
-            }
-            if ( length(lightWeighting) < 0.75 ) {
-              if (mod(gl_FragCoord.x - gl_FragCoord.y, 10.0) == 0.0) {
-                gl_FragColor = vec4( uLineColor2, 1.0 );
-              }
-            }
-            if ( length(lightWeighting) < 0.50 ) {
-              if (mod(gl_FragCoord.x + gl_FragCoord.y - 5.0, 10.0) == 0.0) {
-                gl_FragColor = vec4( uLineColor3, 1.0 );
-              }
-            }
-            if ( length(lightWeighting) < 0.3465 ) {
-              if (mod(gl_FragCoord.x - gl_FragCoord.y - 5.0, 10.0) == 0.0) {
-                gl_FragColor = vec4( uLineColor4, 1.0 );
-              }
-            }
-          }
-        </script>
-    </head>
-    <body>
-        <!--[if lt IE 10]>
-            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
-
-
-        <div class="container">
-        </div>
-
-
-        <!-- build:js scripts/vendor.js -->
-        <!-- bower:js -->
-        <script src="bower_components/jquery/jquery.js"></script>
-        <!-- endbower -->
-        <!-- endbuild -->
-
-        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-        <script>
-            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-            e.src='//www.google-analytics.com/analytics.js';
-            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-            ga('create','UA-XXXXX-X');ga('send','pageview');
-        </script>
-
-        <!-- build:js scripts/main.js -->
-        <script src="scripts/main.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/three.js/r61/three.js"></script>
-        <script src="scripts/bubble.js"></script>
-        <!-- endbuild -->
-
-        <!-- build:js scripts/plugins.js -->
-        <script src="bower_components/sass-bootstrap/js/affix.js"></script>
-        <script src="bower_components/sass-bootstrap/js/alert.js"></script>
-        <script src="bower_components/sass-bootstrap/js/dropdown.js"></script>
-        <script src="bower_components/sass-bootstrap/js/tooltip.js"></script>
-        <script src="bower_components/sass-bootstrap/js/modal.js"></script>
-        <script src="bower_components/sass-bootstrap/js/transition.js"></script>
-        <script src="bower_components/sass-bootstrap/js/button.js"></script>
-        <script src="bower_components/sass-bootstrap/js/popover.js"></script>
-        <script src="bower_components/sass-bootstrap/js/carousel.js"></script>
-        <script src="bower_components/sass-bootstrap/js/scrollspy.js"></script>
-        <script src="bower_components/sass-bootstrap/js/collapse.js"></script>
-        <script src="bower_components/sass-bootstrap/js/tab.js"></script>
-        <!-- endbuild -->
-</body>
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <title>bubble</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+  <body>
+    <div id="blocker">
+      <div id="instructions">
+        <span style="font-size:40px">Click to play</span>
+        <br />
+        (W, A, S, D = Move, SPACE = Jump, MOUSE = Look around)
+      </div>
+    </div>
+    <script type="text/javascript" src="bower_components/threejs/build/three.js"></script>
+    <script type="text/javascript" src="bower_components/threejs/examples/js/controls/PointerLockControls.js"></script>
+    <script type="text/javascript" src="scripts/pointerlock.js"></script>
+    <script type="text/javascript" src="scripts/main.js"></script>
+  </body>
 </html>
+
