@@ -1,7 +1,7 @@
 requirejs.config({
   baseUrl: './',
   paths: {
-    bubble: 'js/bubble.js',
+    bubble: 'scripts/bubble.js',
     jquery: 'bower_components/jquery/jquery',
     modernizr: 'bower_components/modernizr/modernizr',
     requirejs: 'bower_components/requirejs/require',

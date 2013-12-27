@@ -16,6 +16,111 @@
         <!-- build:js scripts/vendor/modernizr.js -->
         <script src="bower_components/modernizr/modernizr.js"></script>
         <!-- endbuild -->
+
+        <script id="fs-convolution" type="x-shader/x-fragment">
+          varying vec2 vUv;
+
+          uniform sampler2D tDiffuse;
+          uniform vec2 uImageIncrement;
+
+          #define KERNEL_SIZE 25
+          uniform float cKernel[KERNEL_SIZE];
+
+          void main(void) {
+            vec2 imageCoord = vUv;
+            vec4 sum = vec4( 0.0, 0.0, 0.0, 0.0 );
+            for( int i=0; i < KERNEL_SIZE; ++i ) {
+              sum += texture2D( tDiffuse, imageCoord ) * cKernel[i];
+              imageCoord += uImageIncrement;
+            }
+            gl_FragColor = sum;
+          }
+        </script>
+
+        <!-- Convolution vertex shader -->
+        <script id="vs-convolution" type="x-shader/x-vertex">
+          varying vec2 vUv;
+
+          uniform vec2 uImageIncrement;
+          #define KERNEL_SIZE 25.0
+
+          void main(void) {
+            //vUv = vec2( uv.x, 1.0 - uv.y ) - ((KERNEL_SIZE - 1.0) / 2.0) *
+            uImageIncrement;
+            vUv = uv - ((KERNEL_SIZE - 1.0) / 2.0) * uImageIncrement;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+          }
+        </script>
+
+
+        <!-- Render parameter modulated texture fragment shader -->
+        <script id="fs-screen" type="x-shader/x-fragment">
+          varying vec2 vUv;
+          uniform sampler2D tDiffuse;
+          uniform float opacity;
+
+          void main(void) {
+            vec4 texel = texture2D( tDiffuse, vUv );
+            gl_FragColor = opacity * texel;
+          }
+        </script>
+
+        <!-- Generic vertex shader -->
+        <script id="vs-generic" type="x-shader/x-vertex">
+          varying vec2 vUv;
+
+          void main() {
+            vUv = vec2( uv.x, 1.0 - uv.y );
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+          }
+        </script>
+
+        <!-- Generic vertex shader -->
+        <script id="vs" type="x-shader/x-vertex">
+          varying vec3 vNormal;
+
+          void main() {
+            gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+            vNormal = normalize( normalMatrix * normal );
+          }
+        </script>
+
+        <script id="fs" type="x-shader/x-vertex">
+          uniform vec3 uBaseColor;
+          uniform vec3 uLineColor1;
+          uniform vec3 uLineColor2;
+          uniform vec3 uLineColor3;
+          uniform vec3 uLineColor4;
+          uniform vec3 uDirLightPos;
+          uniform vec3 uDirLightColor;
+          uniform vec3 uAmbientLightColor;
+          varying vec3 vNormal;
+          void main() {
+            float directionalLightWeighting = max( dot( normalize(vNormal), uDirLightPos ), 0.0);
+            vec3 lightWeighting = uAmbientLightColor + uDirLightColor * directionalLightWeighting;
+            gl_FragColor = vec4( uBaseColor, 1.0 );
+            if ( length(lightWeighting) < 1.00 ) {
+              if ( mod(gl_FragCoord.x + gl_FragCoord.y, 10.0) == 0.0) {
+                gl_FragColor = vec4( uLineColor1, 1.0 );
+              }
+            }
+            if ( length(lightWeighting) < 0.75 ) {
+              if (mod(gl_FragCoord.x - gl_FragCoord.y, 10.0) == 0.0) {
+                gl_FragColor = vec4( uLineColor2, 1.0 );
+              }
+            }
+            if ( length(lightWeighting) < 0.50 ) {
+              if (mod(gl_FragCoord.x + gl_FragCoord.y - 5.0, 10.0) == 0.0) {
+                gl_FragColor = vec4( uLineColor3, 1.0 );
+              }
+            }
+            if ( length(lightWeighting) < 0.3465 ) {
+              if (mod(gl_FragCoord.x - gl_FragCoord.y - 5.0, 10.0) == 0.0) {
+                gl_FragColor = vec4( uLineColor4, 1.0 );
+              }
+            }
+          }
+        </script>
     </head>
     <body>
         <!--[if lt IE 10]>
@@ -24,39 +129,6 @@
 
 
         <div class="container">
-            <div class="header">
-                <ul class="nav nav-pills pull-right">
-                    <li class="active"><a href="#">Home</a></li>
-                    <li><a href="#">About</a></li>
-                    <li><a href="#">Contact</a></li>
-                </ul>
-                <h3 class="text-muted">bubble</h3>
-            </div>
-
-            <div class="jumbotron">
-                <h1>'Allo, 'Allo!</h1>
-                <p class="lead">Always a pleasure scaffolding your apps.</p>
-                <p><a class="btn btn-lg btn-success" href="#">Splendid!</a></p>
-            </div>
-
-            <div class="row marketing">
-                <div class="col-lg-6">
-                    <h4>HTML5 Boilerplate</h4>
-                    <p>HTML5 Boilerplate is a professional front-end template for building fast, robust, and adaptable web apps or sites.</p>
-
-                    <h4>Bootstrap</h4>
-                    <p>Sleek, intuitive, and powerful mobile first front-end framework for faster and easier web development.</p>
-
-                    <h4>Modernizr</h4>
-                    <p>Modernizr is an open-source JavaScript library that helps you build the next generation of HTML5 and CSS3-powered websites.</p>
-
-                </div>
-            </div>
-
-            <div class="footer">
-                <p>♥ from the Yeoman team</p>
-            </div>
-
         </div>
 
 
@@ -78,6 +150,8 @@
 
         <!-- build:js scripts/main.js -->
         <script src="scripts/main.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/three.js/r61/three.js"></script>
+        <script src="scripts/bubble.js"></script>
         <!-- endbuild -->
 
         <!-- build:js scripts/plugins.js -->
