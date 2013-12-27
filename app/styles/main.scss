@@ -52,3 +52,14 @@ body {
   cursor: pointer;
 
 }
+
+#debug {
+  position: absolute;
+  top: 0;
+  right: 0;
+  opacity: 0.3;
+  background-color: #fff;
+  width: 150px;
+  height: 50px;
+  color: #fff;
+}

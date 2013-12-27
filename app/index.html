@@ -6,6 +6,17 @@
   <link rel="stylesheet" href="styles/main.css">
 </head>
   <body>
+    <div id="debug">
+      <span id="rotationx"></span>
+      <span id="rotationy"></span>
+      <span id="rotationz"></span>
+      <span id="positionx"></span>
+      <span id="positiony"></span>
+      <span id="positionz"></span>
+      <span id="velocityx"></span>
+      <span id="velocityy"></span>
+      <span id="velocityz"></span>
+    </div>
     <div id="blocker">
       <div id="instructions">
         <span style="font-size:40px">Click to play</span>
@@ -16,6 +27,8 @@
     <script type="text/javascript" src="bower_components/threejs/build/three.js"></script>
     <script type="text/javascript" src="bower_components/threejs/examples/js/controls/PointerLockControls.js"></script>
     <script type="text/javascript" src="scripts/pointerlock.js"></script>
+    <script type="text/javascript" src="scripts/player.js"></script>
+    <script type="text/javascript" src="scripts/controls.js"></script>
     <script type="text/javascript" src="scripts/main.js"></script>
   </body>
 </html>
