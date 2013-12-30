@@ -1,33 +1,75 @@
 (function() {
-  var WebSocket = window['MozWebSocket'] ? MozWebSocket : WebSocket;
-  var ws = new WebSocket("ws://127.0.0.1:8080/");
+  var ws = new window.WebSocket("ws://127.0.0.1:8080/");
 
-  ws.on = bean.on;
-  ws.emit = bean.fire;
-  ws.once = bean.one;
-  ws.off = bean.off;
+  var PLACEHOLDER = 'placeholder';
 
-  ws.onopen = function() {
-    ws.emit('connected');
+  var entities = ws.entities = {};
 
-    ws.onmessage = function(event) {
-      var message = JSON.parse(event.data);
-      ws.emit(message.event, message.body);
-    }
+  ws.onerror = function() {
+    throw 'Could not connect';
+  }
 
-    ws.on('incoming.tick', function(data) {
-      console.log(data);
-    });
+  var tickId;
 
+  eventEmitter.on('player:created', function(player) {
+    entities[-1] = player;
+  });
+
+  eventEmitter.on('startAnimating', function() {
     (function sendTick() {
-      setTimeout(function() {
-        ws.send(JSON.stringify({ event: 'outgoing.tick', data: { test: 'hi'}}));
+      tickId = setTimeout(function() {
+        var player = entities[-1];
+        var data = {
+          position: [
+            player.position.x,
+            player.position.y,
+            player.position.z
+          ],
+          rotation: [
+            0,
+            player.rotation.y,
+            player.rotation.z
+          ]
+        }
+        ws.send(JSON.stringify({ event: 'outgoing.tick', data: data }));
         sendTick();
       }, 30);
     })();
+  });
+
+  eventEmitter.on('stopAnimating', function() {
+    clearInterval(tickId);
+  });
+
+  ws.onopen = function() {
+    eventEmitter.emit('connected');
+
+    ws.onmessage = function(event) {
+      var message = JSON.parse(event.data);
+      eventEmitter.emit(message.event, message.body);
+    }
+
+    eventEmitter.on('incoming.tick', function(data) {
+      console.log(data);
+      for (var id in data) {
+        var entity = entities[id];
+        if (entity && entity !== PLACEHOLDER) {
+          var position = data[id].position;
+          var rotation = data[id].rotation;
+          entity.position.fromArray(position);
+          entity.rotation.fromArray(rotation);
+        } else {
+          entity = new Entity(position, rotation);
+          entities[id] = PLACEHOLDER;
+          eventEmitter.emit('new_entity', position, rotation, function(e) {
+            entities[id] = e;
+          });
+        }
+      }
+    });
   }
 
 
 
-  window.network = ws;
+  window.ws = ws;
 })();

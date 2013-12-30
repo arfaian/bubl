@@ -31,12 +31,14 @@ function startAnimating() {
     paused = false;
     clock.start();
     requestAnimationFrame(animate);
+    eventEmitter.emit('startAnimating');
   }
 }
 
 function stopAnimating() {
   paused = true;
   clock.stop();
+  eventEmitter.emit('stopAnimating');
 }
 
 var rotationX = document.getElementById('rotationx');
@@ -56,6 +58,9 @@ function updateDebug() {
   positionX.innerHTML = player.position.x;
   positionY.innerHTML = player.position.y;
   positionZ.innerHTML = player.position.z;
+  velocityX.innerHTML = player.velocity.x;
+  velocityY.innerHTML = player.velocity.y;
+  velocityZ.innerHTML = player.velocity.z;
 }
 
 function setupBlocker() {
@@ -121,6 +126,7 @@ function setupPlayer() {
   player.add(camera);
   controls = new Controls(player);
   scene.add(player);
+  eventEmitter.emit('player:created', player);
 }
 
 function createFloor() {
@@ -131,5 +137,19 @@ function createFloor() {
   floor.position.set(100, 0, -100);
   scene.add(floor);
 }
+
+eventEmitter.on('new_entity', function(position, rotation, cb) {
+  THREE.ImageUtils.loadTexture('images/face.png', undefined, function(texture) {
+    var geometry = new THREE.CubeGeometry(Player.RADIUS*2, Player.RADIUS*2, Player.RADIUS*2);
+    var material = new THREE.MeshBasicMaterial({ map: texture });
+    for (var i = 0; i < numEnemies; i++) {
+      var entity = new Player(geometry.clone(), material.clone());
+      entity.position.fromArray(position);
+      entity.rotation.fromArray(rotation);
+      scene.add(entity);
+      cb(entity);
+    }
+  });
+});
 
 setup();
