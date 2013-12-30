@@ -7,15 +7,17 @@
 </head>
   <body>
     <div id="debug">
-      <span id="rotationx"></span>
-      <span id="rotationy"></span>
-      <span id="rotationz"></span>
-      <span id="positionx"></span>
-      <span id="positiony"></span>
-      <span id="positionz"></span>
-      <span id="velocityx"></span>
-      <span id="velocityy"></span>
-      <span id="velocityz"></span>
+      <ul>
+        <li id="rotationx"></li>
+        <li id="rotationy"></li>
+        <li id="rotationz"></li>
+        <li id="positionx"></li>
+        <li id="positiony"></li>
+        <li id="positionz"></li>
+        <li id="velocityx"></li>
+        <li id="velocityy"></li>
+        <li id="velocityz"></li>
+      </ul>
     </div>
     <div id="blocker">
       <div id="instructions">
@@ -26,9 +28,12 @@
     </div>
     <script type="text/javascript" src="bower_components/threejs/build/three.js"></script>
     <script type="text/javascript" src="bower_components/threejs/examples/js/controls/PointerLockControls.js"></script>
+    <script type="text/javascript" src="bower_components/bean/bean.js"></script>
     <script type="text/javascript" src="scripts/pointerlock.js"></script>
     <script type="text/javascript" src="scripts/player.js"></script>
     <script type="text/javascript" src="scripts/controls.js"></script>
+    <script type="text/javascript" src="scripts/websocket.js"></script>
+    <script type="text/javascript" src="scripts/network.js"></script>
     <script type="text/javascript" src="scripts/main.js"></script>
   </body>
 </html>

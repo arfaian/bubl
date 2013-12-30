@@ -1,5 +1,5 @@
 var camera, scene, renderer, controls, player, floor, clock;
-var frameDelta = 0, INV_MAX_FPS = 1 / 100;
+var paused= true, frameDelta = 0, INV_MAX_FPS = 1 / 100;
 
 function setup() {
   setupBlocker();
@@ -15,13 +15,28 @@ function animate() {
 
   frameDelta += clock.getDelta();
   while (frameDelta >= INV_MAX_FPS) {
-    player.update(clock.getDelta());
+    player.update(INV_MAX_FPS);
     player.collideFloor(floor.position.y);
     frameDelta -= INV_MAX_FPS;
     updateDebug();
   }
 
   requestAnimationFrame(animate);
+}
+
+
+
+function startAnimating() {
+  if (paused) {
+    paused = false;
+    clock.start();
+    requestAnimationFrame(animate);
+  }
+}
+
+function stopAnimating() {
+  paused = true;
+  clock.stop();
 }
 
 var rotationX = document.getElementById('rotationx');
@@ -35,7 +50,12 @@ var velocityY = document.getElementById('velocityy');
 var velocityZ = document.getElementById('velocityz');
 
 function updateDebug() {
-  rotationX.innerHtml = player.rotation.x;
+  rotationX.innerHTML = player.rotation.x;
+  rotationY.innerHTML = player.rotation.y;
+  rotationZ.innerHTML = player.rotation.z;
+  positionX.innerHTML = player.position.x;
+  positionY.innerHTML = player.position.y;
+  positionZ.innerHTML = player.position.z;
 }
 
 function setupBlocker() {
@@ -45,10 +65,12 @@ function setupBlocker() {
   function onEnter() {
     controls.enabled = true;
     blocker.style.display = 'none';
+    startAnimating();
   }
 
   function onExit() {
     controls.enabled = false;
+    stopAnimating();
 
     blocker.style.display = '-webkit-box';
     blocker.style.display = '-moz-box';
@@ -81,9 +103,8 @@ function setupThreeJS() {
   scene.add(light);
 
   clock = new THREE.Clock(false);
-  clock.start();
 
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+  camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 1, 10000);
 
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -96,17 +117,18 @@ function setupWorld() {
 
 function setupPlayer() {
   player = new Player();
-  player.position.y = 20;
+  player.position.y = 40;
   player.add(camera);
   controls = new Controls(player);
   scene.add(player);
 }
 
 function createFloor() {
-  var floorGeometry = new THREE.PlaneGeometry(200, 200, 20, 20);
+  var floorGeometry = new THREE.PlaneGeometry(2000, 2000, 20, 20);
   var floorMaterial = new THREE.MeshBasicMaterial({color: 0x9db3b5, overdraw: true});
   floor = new THREE.Mesh(floorGeometry, floorMaterial);
-  floor.rotation.x = -90 * Math.PI / 180;
+  floor.rotation.x = Math.PI * -0.5;
+  floor.position.set(100, 0, -100);
   scene.add(floor);
 }
 

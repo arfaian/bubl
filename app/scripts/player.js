@@ -1,5 +1,7 @@
 function Player() {
   THREE.Mesh.apply(this, arguments);
+  this.canJump = true;
+  this.fly = false;
   this.rotation.order = 'YXZ';
   this._aggregateRotation = new THREE.Vector3();
   this.cameraHeight = 40;
@@ -65,7 +67,7 @@ Player.prototype.update = (function() {
 
     // Ambient forces
     this.velocity.add(scaledVelocity.multiply(
-      this.canJump ? this.ambientFriction : this.ambientAirFriction
+      this.ambientFriction
     ));
 
     // Look
@@ -79,6 +81,7 @@ Player.prototype.collideFloor = function(floorY) {
         this.position.y - this.cameraHeight * 0.5 > floorY) {
     this.velocity.y = Math.max(0, this.velocity.y);
     this.position.y = this.cameraHeight + floorY;
+    this.canJump = true;
     return true;
   }
   return false;
@@ -92,8 +95,10 @@ Player.prototype.rotate = function(x, y, z) {
 
 
 Player.prototype.jump = function(distance) {
-  distance = distance || this.jumpHeight;
-  var thrust = Math.sqrt(Math.abs(2 * distance * this.acceleration.y));
-  this.velocity.y += thrust;
-  this.canJump = false;
+  if (this.canJump) {
+    distance = distance || this.jumpHeight;
+    var thrust = Math.sqrt(Math.abs(2 * distance * this.acceleration.y));
+    this.velocity.y += thrust;
+    this.canJump = false;
+  }
 };

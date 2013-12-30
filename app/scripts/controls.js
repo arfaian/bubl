@@ -1,7 +1,9 @@
 Controls = function (player) {
 
   var onMouseMove = function(event) {
-    player.rotate(event.movementY, event.movementX, 0);
+    if (!paused) {
+      player.rotate(event.movementY, event.movementX, 0);
+    }
   };
 
 	var onKeyDown = function ( event ) {
