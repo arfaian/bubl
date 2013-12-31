@@ -1,5 +1,6 @@
-function Player() {
-  THREE.Mesh.apply(this, arguments);
+function Player(id, geometry, material) {
+  THREE.Mesh.apply(this, Array.prototype.slice.apply(arguments, [1, 3]));
+  this.id = id;
   this.canJump = true;
   this.fly = false;
   this.rotation.order = 'YXZ';

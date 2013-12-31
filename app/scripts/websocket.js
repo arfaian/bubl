@@ -3,22 +3,16 @@
 
   var PLACEHOLDER = 'placeholder';
 
-  var entities = ws.entities = {};
-
   ws.onerror = function() {
     throw 'Could not connect';
   }
 
   var tickId;
 
-  eventEmitter.on('player:created', function(player) {
-    entities[-1] = player;
-  });
-
   eventEmitter.on('startAnimating', function() {
     (function sendTick() {
       tickId = setTimeout(function() {
-        var player = entities[-1];
+        var player = BL.getPlayer();
         var data = {
           position: [
             player.position.x,
@@ -49,6 +43,10 @@
       eventEmitter.emit(message.event, message.body);
     }
 
+    eventEmitter.on('session:start', function(session) {
+      eventEmitter.emit('player:create:start', session.id);
+    });
+
     eventEmitter.on('incoming.tick', function(data) {
       console.log(data);
       for (var id in data) {
@@ -59,11 +57,8 @@
           entity.position.fromArray(position);
           entity.rotation.fromArray(rotation);
         } else {
-          entity = new Entity(position, rotation);
-          entities[id] = PLACEHOLDER;
-          eventEmitter.emit('new_entity', position, rotation, function(e) {
-            entities[id] = e;
-          });
+          BL.setEntity(id) = PLACEHOLDER;
+          eventEmitter.emit('entity:create:start', id, position, rotation);
         }
       }
     });

@@ -5,7 +5,6 @@ function setup() {
   setupBlocker();
   setupThreeJS();
   setupWorld();
-  setupPlayer();
 
   requestAnimationFrame(animate);
 }
@@ -120,15 +119,6 @@ function setupWorld() {
   createFloor();
 }
 
-function setupPlayer() {
-  player = new Player();
-  player.position.y = 40;
-  player.add(camera);
-  controls = new Controls(player);
-  scene.add(player);
-  eventEmitter.emit('player:created', player);
-}
-
 function createFloor() {
   var floorGeometry = new THREE.PlaneGeometry(2000, 2000, 20, 20);
   var floorMaterial = new THREE.MeshBasicMaterial({color: 0x9db3b5, overdraw: true});
@@ -138,18 +128,27 @@ function createFloor() {
   scene.add(floor);
 }
 
-eventEmitter.on('new_entity', function(position, rotation, cb) {
+eventEmitter.on('entity:create:start', function(id, position, rotation) {
   THREE.ImageUtils.loadTexture('images/face.png', undefined, function(texture) {
     var geometry = new THREE.CubeGeometry(Player.RADIUS*2, Player.RADIUS*2, Player.RADIUS*2);
     var material = new THREE.MeshBasicMaterial({ map: texture });
-    for (var i = 0; i < numEnemies; i++) {
-      var entity = new Player(geometry.clone(), material.clone());
-      entity.position.fromArray(position);
-      entity.rotation.fromArray(rotation);
-      scene.add(entity);
-      cb(entity);
-    }
+    var entity = new Player(id, geometry.clone(), material.clone());
+    entity.position.fromArray(position);
+    entity.rotation.fromArray(rotation);
+    scene.add(entity);
+    eventEmitter.emit('player:create:complete', player);
   });
 });
+
+
+eventEmitter.on('player:create:start', function(id) {
+  player = new Player(id);
+  player.position.y = 40;
+  player.add(camera);
+  controls = new Controls(player);
+  scene.add(player);
+  eventEmitter.emit('player:create:complete', player);
+});
+
 
 setup();
