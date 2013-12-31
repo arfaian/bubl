@@ -7,6 +7,15 @@
     throw 'Could not connect';
   }
 
+  ws.onopen = function() {
+    eventEmitter.emit('connected');
+  }
+
+  ws.onmessage = function(event) {
+    var message = JSON.parse(event.data);
+    eventEmitter.emit(message.event, message.data);
+  }
+
   var tickId;
 
   eventEmitter.on('startAnimating', function() {
@@ -30,36 +39,25 @@
     clearInterval(tickId);
   });
 
-  ws.onopen = function() {
-    eventEmitter.emit('connected');
+  eventEmitter.on('session:start', function(data) {
+    eventEmitter.emit('player:create:start', data.id);
+  });
 
-    ws.onmessage = function(event) {
-      var message = JSON.parse(event.data);
-      eventEmitter.emit(message.event, message.data);
-    }
-
-    eventEmitter.on('session:start', function(data) {
-      eventEmitter.emit('player:create:start', data.id);
-    });
-
-    eventEmitter.on('incoming.tick', function(data) {
-      console.log(data);
-      for (var id in data) {
-        var entity = entities[id];
-        if (entity && entity !== PLACEHOLDER) {
-          var position = [data[id].px, data[id].py, data[id].pz];
-          var rotation = [data[id].ry, data[ip].rz];
-          entity.position.fromArray(position);
-          entity.rotation.fromArray(rotation);
-        } else {
-          BL.setEntity(id) = PLACEHOLDER;
-          eventEmitter.emit('entity:create:start', id, position, rotation);
-        }
+  eventEmitter.on('incoming.tick', function(data) {
+    console.log(data);
+    for (var id in data) {
+      var entity = entities[id];
+      if (entity && entity !== PLACEHOLDER) {
+        var position = [data[id].px, data[id].py, data[id].pz];
+        var rotation = [data[id].ry, data[ip].rz];
+        entity.position.fromArray(position);
+        entity.rotation.fromArray(rotation);
+      } else {
+        BL.setEntity(id) = PLACEHOLDER;
+        eventEmitter.emit('entity:create:start', id, position, rotation);
       }
-    });
-  }
-
-
+    }
+  });
 
   window.ws = ws;
 })();
