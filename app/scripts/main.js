@@ -2,7 +2,6 @@ var camera, scene, renderer, controls, player, floor, clock;
 var paused= true, frameDelta = 0, INV_MAX_FPS = 1 / 100;
 
 function setup() {
-  setupBlocker();
   setupThreeJS();
   setupWorld();
 
@@ -147,6 +146,7 @@ eventEmitter.on('player:create:start', function(id) {
   player.add(camera);
   controls = new Controls(player);
   scene.add(player);
+  setupBlocker();
   eventEmitter.emit('player:create:complete', player);
 });
 

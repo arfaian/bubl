@@ -14,16 +14,11 @@
       tickId = setTimeout(function() {
         var player = BL.getPlayer();
         var data = {
-          position: [
-            player.position.x,
-            player.position.y,
-            player.position.z
-          ],
-          rotation: [
-            0,
-            player.rotation.y,
-            player.rotation.z
-          ]
+          px: player.position.x,
+          py: player.position.y,
+          pz: player.position.z,
+          ry: player.rotation.y,
+          rz: player.rotation.z
         }
         ws.send(JSON.stringify({ event: 'outgoing.tick', data: data }));
         sendTick();
@@ -40,11 +35,11 @@
 
     ws.onmessage = function(event) {
       var message = JSON.parse(event.data);
-      eventEmitter.emit(message.event, message.body);
+      eventEmitter.emit(message.event, message.data);
     }
 
-    eventEmitter.on('session:start', function(session) {
-      eventEmitter.emit('player:create:start', session.id);
+    eventEmitter.on('session:start', function(data) {
+      eventEmitter.emit('player:create:start', data.id);
     });
 
     eventEmitter.on('incoming.tick', function(data) {
@@ -52,8 +47,8 @@
       for (var id in data) {
         var entity = entities[id];
         if (entity && entity !== PLACEHOLDER) {
-          var position = data[id].position;
-          var rotation = data[id].rotation;
+          var position = [data[id].px, data[id].py, data[id].pz];
+          var rotation = [data[id].ry, data[ip].rz];
           entity.position.fromArray(position);
           entity.rotation.fromArray(rotation);
         } else {
