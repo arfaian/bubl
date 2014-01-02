@@ -16,9 +16,9 @@
     eventEmitter.emit(message.event, message.data);
   }
 
-  var tickId;
+  var tickId, ready = false;
 
-  eventEmitter.on('startAnimating', function() {
+  eventEmitter.on('player:pointerlock:enter', function() {
     (function sendTick() {
       tickId = setTimeout(function() {
         var player = BL.getPlayer();
@@ -35,26 +35,29 @@
     })();
   });
 
-  eventEmitter.on('stopAnimating', function() {
+  eventEmitter.on('player:pointerlock:exit', function() {
     clearInterval(tickId);
   });
 
   eventEmitter.on('session:start', function(data) {
-    eventEmitter.emit('player:create:start', data.id);
+    eventEmitter.emit('player:create:start', data.session.id);
+    ready = true;
   });
 
   eventEmitter.on('incoming.tick', function(data) {
-    console.log(data);
-    for (var id in data) {
-      var entity = entities[id];
-      if (entity && entity !== PLACEHOLDER) {
+    if (ready) {
+      BL.getPlayer() ? delete data[BL.getPlayer().id] : false;
+      for (var id in data) {
+        var entity = BL.getEntity(id);
         var position = [data[id].px, data[id].py, data[id].pz];
-        var rotation = [data[id].ry, data[ip].rz];
-        entity.position.fromArray(position);
-        entity.rotation.fromArray(rotation);
-      } else {
-        BL.setEntity(id) = PLACEHOLDER;
-        eventEmitter.emit('entity:create:start', id, position, rotation);
+        var rotation = [0, data[id].ry, data[id].rz];
+        if (typeof entity === "object" && entity !== null) {
+          entity.position.fromArray(position);
+          entity.rotation.fromArray(rotation);
+        } else if (entity === null){
+          BL.setEntity(id, PLACEHOLDER);
+          eventEmitter.emit('entity:create:start', id, position, rotation);
+        }
       }
     }
   });

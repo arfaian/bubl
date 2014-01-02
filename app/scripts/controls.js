@@ -1,7 +1,8 @@
 Controls = function (player) {
+  var hasPointerlock = false;
 
   var onMouseMove = function(event) {
-    if (!paused) {
+    if (hasPointerlock) {
       player.rotate(event.movementY, event.movementX, 0);
     }
   };
@@ -63,4 +64,12 @@ Controls = function (player) {
 	document.addEventListener('mousemove', onMouseMove, false);
 	document.addEventListener('keydown', onKeyDown, false);
 	document.addEventListener('keyup', onKeyUp, false);
+
+  eventEmitter.on('player:pointerlock:enter', function() {
+    hasPointerlock = true;
+  });
+
+  eventEmitter.on('player:pointerlock:exit', function() {
+    hasPointerlock = false;
+  });
 };

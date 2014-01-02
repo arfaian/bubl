@@ -1,5 +1,6 @@
 function Player(id, geometry, material) {
-  THREE.Mesh.apply(this, Array.prototype.slice.apply(arguments, [1, 3]));
+  var args = Array.prototype.slice.apply(arguments, [1, 3]);
+  THREE.Mesh.apply(this, args);
   this.id = id;
   this.canJump = true;
   this.fly = false;
@@ -74,6 +75,7 @@ Player.prototype.update = (function() {
     // Look
     this.rotation.set(r.x, r.y, r.z);
     this._aggregateRotation.set(0, 0, 0);
+    eventEmitter.emit('player:move', this.position, this.velocity, this.rotation);
   };
 })();
 

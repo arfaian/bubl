@@ -8,15 +8,18 @@
   <body>
     <div id="debug">
       <ul>
-        <li id="rotationx"></li>
-        <li id="rotationy"></li>
-        <li id="rotationz"></li>
-        <li id="positionx"></li>
-        <li id="positiony"></li>
-        <li id="positionz"></li>
-        <li id="velocityx"></li>
-        <li id="velocityy"></li>
-        <li id="velocityz"></li>
+        <li>rx: <span id="rotationx"></span></li>
+        <li>ry: <span id="rotationy"></span></li>
+        <li>rz: <span id="rotationz"></span></li>
+        <li>px: <span id="positionx"></span></li>
+        <li>py: <span id="positiony"></span></li>
+        <li>pz: <span id="positionz"></span></li>
+        <li>vx: <span id="velocityx"></span></li>
+        <li>vy: <span id="velocityy"></span></li>
+        <li>vz: <span id="velocityz"></span></li>
+        <li>bpx: <span id="bodypositionx"></span></li>
+        <li>bpy: <span id="bodypositiony"></span></li>
+        <li>bpz: <span id="bodypositionz"></span></li>
       </ul>
     </div>
     <div id="blocker">
@@ -29,13 +32,14 @@
     <script type="text/javascript" src="bower_components/threejs/build/three.js"></script>
     <script type="text/javascript" src="bower_components/threejs/examples/js/controls/PointerLockControls.js"></script>
     <script type="text/javascript" src="bower_components/eventEmitter/EventEmitter.js"></script>
+    <script type="text/javascript" src="scripts/vendor/cannon.js"></script>
     <script type="text/javascript" src="scripts/events.js"></script>
     <script type="text/javascript" src="scripts/state.js"></script>
     <script type="text/javascript" src="scripts/pointerlock.js"></script>
     <script type="text/javascript" src="scripts/player.js"></script>
     <script type="text/javascript" src="scripts/controls.js"></script>
     <script type="text/javascript" src="scripts/websocket.js"></script>
-    <script type="text/javascript" src="scripts/network.js"></script>
+    <script type="text/javascript" src="scripts/cannon.js"></script>
     <script type="text/javascript" src="scripts/main.js"></script>
   </body>
 </html>

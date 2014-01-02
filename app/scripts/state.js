@@ -2,7 +2,9 @@
 
   var state = {
     player: null,
-    entities: {}
+    entities: {},
+    walls: [],
+    obstacles: []
   }
 
   function BL(state) {
@@ -10,13 +12,11 @@
     var self = this;
 
     var hasProp = function(prop) {
-      return Object.prototype.hasOwnProperty.call(s.entities, prop);
+      return Object.prototype.hasOwnProperty.call(state.entities, prop);
     }
 
     this.setEntity = function(id, entity) {
-      if (!hasProp(id)) {
-        state.entities[id];
-      }
+      state.entities[id] = entity;
     }
 
     this.getEntity = function(id) {
@@ -25,6 +25,10 @@
 
     this.getPlayer = function() {
       return state.player;
+    }
+
+    this.getObstacles = function() {
+      return state.obstacles;
     }
 
     eventEmitter.on('player:create:complete', function(player) {

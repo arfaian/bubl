@@ -1,65 +1,40 @@
 var camera, scene, renderer, controls, player, floor, clock;
-var paused= true, frameDelta = 0, INV_MAX_FPS = 1 / 100;
+var frameDelta = 0, INV_MAX_FPS = 1 / 100;
 
 function setup() {
   setupThreeJS();
   setupWorld();
 
+  clock.start();
   requestAnimationFrame(animate);
 }
 
 function animate() {
   renderer.render(scene, camera);
+  eventEmitter.emit('animate:start');
 
   frameDelta += clock.getDelta();
   while (frameDelta >= INV_MAX_FPS) {
-    player.update(INV_MAX_FPS);
-    player.collideFloor(floor.position.y);
+    eventEmitter.emit('animate', INV_MAX_FPS);
     frameDelta -= INV_MAX_FPS;
-    updateDebug();
   }
 
+  eventEmitter.emit('animate:end');
   requestAnimationFrame(animate);
 }
 
-
-
-function startAnimating() {
-  if (paused) {
-    paused = false;
-    clock.start();
-    requestAnimationFrame(animate);
-    eventEmitter.emit('startAnimating');
-  }
-}
-
-function stopAnimating() {
-  paused = true;
-  clock.stop();
-  eventEmitter.emit('stopAnimating');
-}
-
-var rotationX = document.getElementById('rotationx');
-var rotationY = document.getElementById('rotationy');
-var rotationZ = document.getElementById('rotationz');
-var positionX = document.getElementById('positionx');
-var positionY = document.getElementById('positiony');
-var positionZ = document.getElementById('positionz');
-var velocityX = document.getElementById('velocityx');
-var velocityY = document.getElementById('velocityy');
-var velocityZ = document.getElementById('velocityz');
-
-function updateDebug() {
-  rotationX.innerHTML = player.rotation.x;
-  rotationY.innerHTML = player.rotation.y;
-  rotationZ.innerHTML = player.rotation.z;
-  positionX.innerHTML = player.position.x;
-  positionY.innerHTML = player.position.y;
-  positionZ.innerHTML = player.position.z;
-  velocityX.innerHTML = player.velocity.x;
-  velocityY.innerHTML = player.velocity.y;
-  velocityZ.innerHTML = player.velocity.z;
-}
+var rotationX = document.getElementById('rotationx')
+  , rotationY = document.getElementById('rotationy')
+  , rotationZ = document.getElementById('rotationz')
+  , positionX = document.getElementById('positionx')
+  , positionY = document.getElementById('positiony')
+  , positionZ = document.getElementById('positionz')
+  , velocityX = document.getElementById('velocityx')
+  , velocityY = document.getElementById('velocityy')
+  , velocityZ = document.getElementById('velocityz')
+  , bodypositionX = document.getElementById('bodypositionx')
+  , bodypositionY = document.getElementById('bodypositiony')
+  , bodypositionZ = document.getElementById('bodypositionz');
 
 function setupBlocker() {
   var blocker = document.getElementById('blocker');
@@ -68,18 +43,18 @@ function setupBlocker() {
   function onEnter() {
     controls.enabled = true;
     blocker.style.display = 'none';
-    startAnimating();
+    eventEmitter.emit('player:pointerlock:enter');
   }
 
   function onExit() {
     controls.enabled = false;
-    stopAnimating();
 
     blocker.style.display = '-webkit-box';
     blocker.style.display = '-moz-box';
     blocker.style.display = 'box';
 
     instructions.style.display = '';
+    eventEmitter.emit('player:pointerlock:exit');
   }
 
   function onError() {
@@ -116,6 +91,7 @@ function setupThreeJS() {
 
 function setupWorld() {
   createFloor();
+  addBoxes();
 }
 
 function createFloor() {
@@ -127,16 +103,37 @@ function createFloor() {
   scene.add(floor);
 }
 
+function addBoxes() {
+  var halfExtents = new CANNON.Vec3(1,1,1);
+  var boxShape = new CANNON.Box(halfExtents);
+  var boxGeometry = new THREE.CubeGeometry(40, 40, 40);
+  var material = new THREE.MeshLambertMaterial({ color: 0xdddddd });
+  for(var i = 0; i < 7; i++){
+      var x = (Math.random() - 0.5) * 1000;
+      var y = 40;
+      var z = (Math.random() - 0.5) * 1000;
+      var boxMesh = new THREE.Mesh( boxGeometry, material );
+      scene.add(boxMesh);
+      var boxBody = new CANNON.RigidBody(0, boxShape);
+      boxBody.position.set(x,y,z);
+      boxMesh.position.set(x,y,z);
+      boxMesh.castShadow = true;
+      boxMesh.receiveShadow = true;
+      boxMesh.useQuaternion = true;
+      eventEmitter.emit('physics:box:add', boxBody);
+  }
+}
+
 eventEmitter.on('entity:create:start', function(id, position, rotation) {
-  THREE.ImageUtils.loadTexture('images/face.png', undefined, function(texture) {
-    var geometry = new THREE.CubeGeometry(Player.RADIUS*2, Player.RADIUS*2, Player.RADIUS*2);
-    var material = new THREE.MeshBasicMaterial({ map: texture });
-    var entity = new Player(id, geometry.clone(), material.clone());
-    entity.position.fromArray(position);
-    entity.rotation.fromArray(rotation);
-    scene.add(entity);
-    eventEmitter.emit('player:create:complete', player);
-  });
+  var geometry = new THREE.CubeGeometry(Player.RADIUS*2, Player.RADIUS*2, Player.RADIUS*2);
+  var material = new THREE.MeshNormalMaterial();
+  var entity = new Player(id, geometry, material);
+  entity.position.fromArray(position);
+  entity.rotation.fromArray(rotation);
+  entity.overdraw = true;
+  scene.add(entity);
+  eventEmitter.emit('entity:create:complete', entity);
+  eventEmitter.emit('physics:entity:create', entity);
 });
 
 
@@ -148,6 +145,24 @@ eventEmitter.on('player:create:start', function(id) {
   scene.add(player);
   setupBlocker();
   eventEmitter.emit('player:create:complete', player);
+  eventEmitter.emit('physics:player:create', player);
+  eventEmitter.on('animate', function(invMaxFps) {
+    player.update(invMaxFps);
+    player.collideFloor(floor.position.y);
+
+    rotationX.innerHTML = player.rotation.x;
+    rotationY.innerHTML = player.rotation.y;
+    rotationZ.innerHTML = player.rotation.z;
+    positionX.innerHTML = player.position.x;
+    positionY.innerHTML = player.position.y;
+    positionZ.innerHTML = player.position.z;
+    velocityX.innerHTML = player.velocity.x;
+    velocityY.innerHTML = player.velocity.y;
+    velocityZ.innerHTML = player.velocity.z;
+    bodypositionX.innerHTML = player.collisionBody.position.x;
+    bodypositionY.innerHTML = player.collisionBody.position.y;
+    bodypositionZ.innerHTML = player.collisionBody.position.z;
+  });
 });
 
 
