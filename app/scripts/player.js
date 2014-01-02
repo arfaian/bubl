@@ -102,6 +102,7 @@ Player.prototype.jump = function(distance) {
     distance = distance || this.jumpHeight;
     var thrust = Math.sqrt(Math.abs(2 * distance * this.acceleration.y));
     this.velocity.y += thrust;
+    eventEmitter.emit('player:jump');
     this.canJump = false;
   }
 };

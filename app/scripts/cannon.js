@@ -1,4 +1,8 @@
 (function() {
+
+  var inputVelocity = new THREE.Vector3();
+  var inputQuaternion = new THREE.Quaternion();
+
   // Setup our world
   world = new CANNON.World();
   world.quatNormalizeSkip = 0;
@@ -78,9 +82,30 @@
   });
 
   eventEmitter.on('player:move', function(position, velocity, rotation) {
-    var body = player.collisionBody;
-    player.collisionBody.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), rotation.y);
-    body.velocity.set(velocity.x, velocity.y, velocity.z);
-    player.collisionBody.position.copy(position);
+    inputVelocity.set(0, 0, 0);
+
+    if (player.moveDirection.FORWARD) inputVelocity.z -= Player.SPEED;
+    if (player.moveDirection.LEFT) inputVelocity.x -= Player.SPEED;
+    if (player.moveDirection.BACKWARD) inputVelocity.z += Player.SPEED;
+    if (player.moveDirection.RIGHT) inputVelocity.x += Player.SPEED;
+
+    var r = new THREE.Euler();
+    r.x = player.rotation.x;
+    r.y = player.rotation.y;
+    r.z = player.rotation.z;
+    inputQuaternion.setFromEuler(r, true);
+    inputVelocity.applyQuaternion(inputQuaternion);
+
+    inputVelocity.multiplyScalar((1 / 100));
+
+    player.collisionBody.velocity.x += inputVelocity.x;
+    player.collisionBody.velocity.z += inputVelocity.z;
+
+    player.collisionBody.position.copy(player.position);
   });
+
+  eventEmitter.on('player:jump', function() {
+    player.collisionBody.velocity.y += 120;
+  });
+
 })();
