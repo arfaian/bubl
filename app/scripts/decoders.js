@@ -1,5 +1,8 @@
 (function() {
   DECODERS = {
+    'player:leave': function(dataView) {
+      return dataView.getInt32(2);
+    },
     'incoming.tick': function(dataView) {
 
       var players = [];

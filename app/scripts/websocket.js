@@ -3,13 +3,15 @@
   var EventNameReverseLookup = {
     "session:start": 'a',
     "incoming.tick": 'b',
-    "outgoing.tick": 'c'
+    "outgoing.tick": 'c',
+    "player:leave": 'd'
   };
 
   var EventNameLookup = {
     'a': "session:start",
     'b': "incoming.tick",
-    'c': "outgoing.tick"
+    'c': "outgoing.tick",
+    'd': "player:leave"
   };
 
   var ws = new window.WebSocket("ws://127.0.0.1:8080/");
@@ -80,6 +82,11 @@
         eventEmitter.emit('entity:create:start', player.id, position, rotation);
       }
     }
+  });
+
+  eventEmitter.on('player:leave', function(id) {
+    scene.remove(BL.getEntity(id));
+    BL.removeEntity(id);
   });
 
   window.ws = ws;

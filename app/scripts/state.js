@@ -23,6 +23,10 @@
       return hasProp(id) ? state.entities[id] : null;
     }
 
+    this.removeEntity = function(id) {
+      delete state.entities[id];
+    }
+
     this.getPlayer = function() {
       return state.player;
     }
