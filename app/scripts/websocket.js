@@ -12,7 +12,7 @@
     'c': "outgoing.tick"
   };
 
-  var ws = new window.WebSocket("ws://127.0.0.1:8080/");
+  var ws = new window.WebSocket("ws://bubl-server.herokuapp.com/");
   ws.binaryType = "arraybuffer";
 
   var PLACEHOLDER = 'placeholder';
