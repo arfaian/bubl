@@ -91,7 +91,6 @@ function setupThreeJS() {
 
 function setupWorld() {
   createFloor();
-  addBoxes();
 }
 
 function createFloor() {
@@ -103,26 +102,24 @@ function createFloor() {
   scene.add(floor);
 }
 
-function addBoxes() {
-  var halfExtents = new CANNON.Vec3(1,1,1);
+eventEmitter.on('box:create:start', function(boxes) {
+  var halfExtents = new CANNON.Vec3(1, 1, 1);
   var boxShape = new CANNON.Box(halfExtents);
   var boxGeometry = new THREE.CubeGeometry(40, 40, 40);
   var material = new THREE.MeshLambertMaterial({ color: 0xdddddd });
-  for(var i = 0; i < 7; i++){
-      var x = (Math.random() - 0.5) * 1000;
-      var y = 40;
-      var z = (Math.random() - 0.5) * 1000;
-      var boxMesh = new THREE.Mesh( boxGeometry, material );
+  for (var i = 0; i < boxes.length; i++) {
+      var box = boxes[i];
+      var boxMesh = new THREE.Mesh(boxGeometry, material);
       scene.add(boxMesh);
       var boxBody = new CANNON.RigidBody(0, boxShape);
-      boxBody.position.set(x,y,z);
-      boxMesh.position.set(x,y,z);
+      boxBody.position.set(box.px, box.py, box.pz);
+      boxMesh.position.set(box.px, box.py, box.pz);
       boxMesh.castShadow = true;
       boxMesh.receiveShadow = true;
       boxMesh.useQuaternion = true;
       eventEmitter.emit('physics:box:add', boxBody);
   }
-}
+});
 
 eventEmitter.on('entity:create:start', function(id, position, rotation) {
   var geometry = new THREE.CubeGeometry(Player.RADIUS*2, Player.RADIUS*2, Player.RADIUS*2);

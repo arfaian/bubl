@@ -21,14 +21,14 @@
   else
       world.solver = solver;
 
-  world.gravity.set(0,-20,0);
+  world.gravity.set(0,-50,0);
   world.broadphase = new CANNON.NaiveBroadphase();
 
   // Create a slippery material (friction coefficient = 0.0)
   physicsMaterial = new CANNON.Material("slipperyMaterial");
   var physicsContactMaterial = new CANNON.ContactMaterial(physicsMaterial,
                                                           physicsMaterial,
-                                                          0.0, // friction coefficient
+                                                          1.0, // friction coefficient
                                                           0.3  // restitution
                                                           );
   // We must add the contact materials to the world
@@ -58,7 +58,7 @@
   });
 
   function addEntitySphere(entity) {
-    var mass = 5, radius = 40, position = entity.position;
+    var mass = 150, radius = 40, position = entity.position;
     sphereShape = new CANNON.Sphere(radius);
     sphereBody = new CANNON.RigidBody(mass,sphereShape,physicsMaterial);
     sphereBody.position.set(position.x, position.y, position.z);
