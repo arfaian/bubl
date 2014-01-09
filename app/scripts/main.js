@@ -1,5 +1,13 @@
-var camera, scene, renderer, controls, player, floor, clock;
-var frameDelta = 0, INV_MAX_FPS = 1 / 100;
+var camera
+  , scene
+  , renderer
+  , player
+  , floor
+  , clock
+  , controls = new Controls()
+  , frameDelta = 0
+  , INV_MAX_FPS = 1 / 100
+  ;
 
 function setup() {
   setupThreeJS();
@@ -138,13 +146,11 @@ eventEmitter.on('player:create:start', function(id) {
   player = new Player(id);
   player.position.y = 40;
   player.add(camera);
-  controls = new Controls(player);
   scene.add(player);
   setupBlocker();
   eventEmitter.emit('player:create:complete', player);
   eventEmitter.emit('physics:player:create', player);
   eventEmitter.on('animate', function(invMaxFps) {
-    player.update(invMaxFps);
     player.collideFloor(floor.position.y);
 
     rotationX.innerHTML = player.rotation.x;

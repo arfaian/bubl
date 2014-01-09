@@ -81,13 +81,27 @@
     world.add(box);
   });
 
-  eventEmitter.on('player:move', function(position, velocity, rotation) {
+  var aggregateRotation = new THREE.Vector3(0, 0, 0);
+
+  eventEmitter.on('animate', function(invMaxFps) {
     inputVelocity.set(0, 0, 0);
 
-    if (player.moveDirection.FORWARD) inputVelocity.z -= Player.SPEED;
-    if (player.moveDirection.LEFT) inputVelocity.x -= Player.SPEED;
-    if (player.moveDirection.BACKWARD) inputVelocity.z += Player.SPEED;
-    if (player.moveDirection.RIGHT) inputVelocity.x += Player.SPEED;
+    if (controls.forward) inputVelocity.z -= Player.SPEED;
+    if (controls.left) inputVelocity.x -= Player.SPEED;
+    if (controls.backward) inputVelocity.z += Player.SPEED;
+    if (controls.right) inputVelocity.x += Player.SPEED;
+
+    var r = aggregateRotation
+      .multiply(player.inverseLook)
+      .multiply(player.mouseSensitivity)
+      .multiplyScalar(invMaxFps)
+      .add(player.rotation);
+    player.rotation.set(r.x, r.y, r.z);
+    aggregateRotation.set(0, 0, 0);
+    aggregateRotation.x += controls.mousedy;
+    aggregateRotation.y += controls.mousedx;
+    controls.mousedy = controls.mousedx = 0;
+
 
     var r = new THREE.Euler();
     r.x = player.rotation.x;
