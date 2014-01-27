@@ -64,6 +64,7 @@
   });
 
   eventEmitter.on('session:start', function(data) {
+    eventEmitter.emit('init', data.id);
     eventEmitter.emit('player:create:start', data.id);
     eventEmitter.emit('box:create:start', data.objects);
   });

@@ -7,8 +7,6 @@ function Player(id, geometry, material) {
   this.cameraHeight = 40;
   this.jumpHeight = 225;
   this.constrainVerticalLook = true;
-  this.inverseLook = new THREE.Vector3(-1, -1, -1);
-  this.mouseSensitivity = new THREE.Vector3(0.25, 0.25, 0.25);
   this.velocity = new THREE.Vector3();
   this.acceleration = new THREE.Vector3(0, -150, 0);
   this.ambientFriction = new THREE.Vector3(-10, 0, -10);

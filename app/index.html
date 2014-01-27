@@ -20,6 +20,10 @@
         <li>bpx: <span id="bodypositionx"></span></li>
         <li>bpy: <span id="bodypositiony"></span></li>
         <li>bpz: <span id="bodypositionz"></span></li>
+        <li>server time: <span id="serverTime"></span></li>
+        <li>server tick: <span id="serverTick"></span></li>
+        <li>client tick: <span id="clientTick"></span></li>
+        <li>tick offset: <span id="tickOffset"></span></li>
       </ul>
     </div>
     <div id="blocker">
@@ -32,15 +36,16 @@
     <script type="text/javascript" src="bower_components/threejs/build/three.js"></script>
     <script type="text/javascript" src="bower_components/threejs/examples/js/controls/PointerLockControls.js"></script>
     <script type="text/javascript" src="bower_components/eventEmitter/EventEmitter.js"></script>
-    <script type="text/javascript" src="scripts/vendor/cannon.js"></script>
+    <script type="text/javascript" src="scripts/vendor/Long.js"></script>
+    <script type="text/javascript" src="scripts/preciseInterval.js"></script>
     <script type="text/javascript" src="scripts/decoders.js"></script>
     <script type="text/javascript" src="scripts/events.js"></script>
+    <script type="text/javascript" src="scripts/workerInterface.js"></script>
     <script type="text/javascript" src="scripts/state.js"></script>
     <script type="text/javascript" src="scripts/pointerlock.js"></script>
     <script type="text/javascript" src="scripts/player.js"></script>
     <script type="text/javascript" src="scripts/controls.js"></script>
     <script type="text/javascript" src="scripts/websocket.js"></script>
-    <script type="text/javascript" src="scripts/cannon.js"></script>
     <script type="text/javascript" src="scripts/main.js"></script>
   </body>
 </html>

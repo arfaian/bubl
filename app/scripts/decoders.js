@@ -7,7 +7,15 @@
 
       var players = [];
 
-      var playersDataView = new DataView(dataView.buffer, 2);
+      BL.setServerTick(dataView.getInt32(2));
+
+      var lowBits = dataView.getInt32(6);
+      var highBits = dataView.getInt32(10);
+
+      var long = new dcodeIO.Long(lowBits, highBits, true);
+      BL.setServerTime(long.toString());
+
+      var playersDataView = new DataView(dataView.buffer, 14);
 
       for (var i = 0; i < (playersDataView.byteLength / 28); i++) {
         var index = i * 28;
@@ -36,7 +44,9 @@
         objects: []
       }
 
-      var objectsDataView = new DataView(dataView.buffer, 6);
+      BL.setClientTick(dataView.getInt32(6))
+
+      var objectsDataView = new DataView(dataView.buffer, 10);
 
       for (var i = 0; i < (objectsDataView.byteLength / 30); i++) {
         var index = i * 30;

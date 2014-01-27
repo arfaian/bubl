@@ -42,21 +42,23 @@ var rotationX = document.getElementById('rotationx')
   , velocityZ = document.getElementById('velocityz')
   , bodypositionX = document.getElementById('bodypositionx')
   , bodypositionY = document.getElementById('bodypositiony')
-  , bodypositionZ = document.getElementById('bodypositionz');
+  , bodypositionZ = document.getElementById('bodypositionz')
+  , serverTime = document.getElementById('serverTime')
+  , serverTick = document.getElementById('serverTick')
+  , clientTick = document.getElementById('clientTick')
+  , tickOffset = document.getElementById('tickOffset')
+  ;
 
 function setupBlocker() {
   var blocker = document.getElementById('blocker');
   var instructions = document.getElementById('instructions');
 
   function onEnter() {
-    controls.enabled = true;
     blocker.style.display = 'none';
     eventEmitter.emit('player:pointerlock:enter');
   }
 
   function onExit() {
-    controls.enabled = false;
-
     blocker.style.display = '-webkit-box';
     blocker.style.display = '-moz-box';
     blocker.style.display = 'box';
@@ -111,6 +113,7 @@ function createFloor() {
 }
 
 eventEmitter.on('box:create:start', function(boxes) {
+/*
   var halfExtents = new CANNON.Vec3(1, 1, 1);
   var boxShape = new CANNON.Box(halfExtents);
   var boxGeometry = new THREE.CubeGeometry(40, 40, 40);
@@ -127,6 +130,7 @@ eventEmitter.on('box:create:start', function(boxes) {
       boxMesh.useQuaternion = true;
       eventEmitter.emit('physics:box:add', boxBody);
   }
+*/
 });
 
 eventEmitter.on('entity:create:start', function(id, position, rotation) {
@@ -162,11 +166,17 @@ eventEmitter.on('player:create:start', function(id) {
     velocityX.innerHTML = player.velocity.x;
     velocityY.innerHTML = player.velocity.y;
     velocityZ.innerHTML = player.velocity.z;
-    bodypositionX.innerHTML = player.collisionBody.position.x;
-    bodypositionY.innerHTML = player.collisionBody.position.y;
-    bodypositionZ.innerHTML = player.collisionBody.position.z;
+    bodypositionX.innerHTML = player.position.x;
+    bodypositionY.innerHTML = player.position.y;
+    bodypositionZ.innerHTML = player.position.z;
+    serverTime.innerHTML = BL.getServerTime();
+    serverTick.innerHTML = BL.getServerTick();
+    clientTick.innerHTML = BL.getClientTick();
+    tickOffset.innerHTML = BL.getTickOffset();
   });
 });
 
-
-setup();
+eventEmitter.on('init', function() {
+  BL.tick();
+  setup();
+});

@@ -4,7 +4,10 @@
     player: null,
     entities: {},
     walls: [],
-    obstacles: []
+    obstacles: [],
+    serverTime: 0,
+    serverTick: 0,
+    clientTick: 0
   }
 
   function BL(state) {
@@ -33,6 +36,45 @@
 
     this.getObstacles = function() {
       return state.obstacles;
+    }
+
+    this.setServerTime = function(serverTime) {
+      state.serverTime = serverTime;
+    }
+
+    this.getServerTime = function() {
+      return state.serverTime;
+    }
+
+    this.setServerTick = function(serverTick) {
+      state.serverTick = serverTick;
+    }
+
+    this.getServerTick = function() {
+      return state.serverTick;
+    }
+
+    this.setClientTick = function(clientTick) {
+      state.clientTick = clientTick;
+    }
+
+    this.getClientTick = function() {
+      return state.clientTick;
+    }
+
+    this.getTickOffset = function() {
+      return state.clientTick - state.serverTick;
+    }
+
+    this.incrementClientTick = function() {
+      return state.clientTick += 1;
+    }
+
+    this.tick = function() {
+      setPreciseInterval(function() {
+        self.incrementClientTick();
+        eventEmitter.emit('usercmd', self.getClientTick());
+      }, 15);
     }
 
     eventEmitter.on('player:create:complete', function(player) {

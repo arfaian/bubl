@@ -1,7 +1,11 @@
 (function() {
 
-  var inputVelocity = new THREE.Vector3();
-  var inputQuaternion = new THREE.Quaternion();
+  var inputVelocity = new THREE.Vector3()
+    , inputQuaternion = new THREE.Quaternion()
+    , SPEED = 200
+    , INV_MAX_FPS = 1 / 100
+    , collisionBody = null
+    ;
 
   // Setup our world
   world = new CANNON.World();
@@ -34,14 +38,14 @@
   // We must add the contact materials to the world
   world.addContactMaterial(physicsContactMaterial);
 
-  eventEmitter.on('physics:player:create', function(player) {
-    var contactNormal = new CANNON.Vec3(); // Normal in the contact, pointing *out* of whatever the player touched
+  eventEmitter.on('physics:player:create', function(position) {
+    var contactNormal = new CANNON.Vec3();
     var upAxis = new CANNON.Vec3(0,1,0);
-    var sphere = addEntitySphere(player);
-    sphere.addEventListener("collide", function(e){
+    collisionBody = addEntitySphere(position);
+    collisionBody.addEventListener("collide", function(e){
       var contact = e.contact;
 
-      if(contact.bi.id == sphere.id)
+      if(contact.bi.id == collisionBody.id)
         contact.ni.negate(contactNormal);
       else
         contact.ni.copy(contactNormal);
@@ -50,17 +54,16 @@
         //canJump = true;
       }
     });
-    player.collisionBody = sphere;
   });
 
   eventEmitter.on('physics:entity:create', function(entity) {
     addEntitySphere(entity);
   });
 
-  function addEntitySphere(entity) {
-    var mass = 150, radius = 40, position = entity.position;
+  function addEntitySphere(position) {
+    var mass = 150, radius = 40;
     sphereShape = new CANNON.Sphere(radius);
-    sphereBody = new CANNON.RigidBody(mass,sphereShape,physicsMaterial);
+    sphereBody = new CANNON.RigidBody(mass, sphereShape, physicsMaterial);
     sphereBody.position.set(position.x, position.y, position.z);
     sphereBody.linearDamping = 0.9;
     world.add(sphereBody);
@@ -73,53 +76,57 @@
   groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1,0,0),-Math.PI/2);
   world.add(groundBody);
 
-  eventEmitter.on('animate', function(invMaxFps) {
-    world.step(invMaxFps);
-  });
-
   eventEmitter.on('physics:box:add', function(box) {
     world.add(box);
   });
 
-  var aggregateRotation = new THREE.Vector3(0, 0, 0);
+  var aggregateRotation = new THREE.Vector3(0, 0, 0)
+    , inverseLook = new THREE.Vector3(-1, -1, -1)
+    , mouseSensitivity = new THREE.Vector3(0.25, 0.25, 0.25)
+    ;
 
-  eventEmitter.on('animate', function(invMaxFps) {
+  eventEmitter.on('animate', function(data) {
+    world.step(INV_MAX_FPS);
+
     inputVelocity.set(0, 0, 0);
 
-    if (controls.forward) inputVelocity.z -= Player.SPEED;
-    if (controls.left) inputVelocity.x -= Player.SPEED;
-    if (controls.backward) inputVelocity.z += Player.SPEED;
-    if (controls.right) inputVelocity.x += Player.SPEED;
+    if (data.controls.forward) inputVelocity.z -= SPEED;
+    if (data.controls.left) inputVelocity.x -= SPEED;
+    if (data.controls.backward) inputVelocity.z += SPEED;
+    if (data.controls.right) inputVelocity.x += SPEED;
 
     var r = aggregateRotation
-      .multiply(player.inverseLook)
-      .multiply(player.mouseSensitivity)
-      .multiplyScalar(invMaxFps)
-      .add(player.rotation);
-    player.rotation.set(r.x, r.y, r.z);
+      .multiply(inverseLook)
+      .multiply(mouseSensitivity)
+      .multiplyScalar(INV_MAX_FPS)
+      .add(data.r);
+    data.r.x = r.x;
+    data.r.y = r.y;
+    data.r.z = r.z;
     aggregateRotation.set(0, 0, 0);
-    aggregateRotation.x += controls.mousedy;
-    aggregateRotation.y += controls.mousedx;
-    controls.mousedy = controls.mousedx = 0;
+    aggregateRotation.x += data.controls.mousedy;
+    aggregateRotation.y += data.controls.mousedx;
 
 
-    var r = new THREE.Euler();
-    r.x = player.rotation.x;
-    r.y = player.rotation.y;
-    r.z = player.rotation.z;
-    inputQuaternion.setFromEuler(r, true);
+    var euler = new THREE.Euler();
+    euler.x = data.r.x;
+    euler.y = data.r.y;
+    euler.z = data.r.z;
+    inputQuaternion.setFromEuler(euler, true);
     inputVelocity.applyQuaternion(inputQuaternion);
 
-    inputVelocity.multiplyScalar((1 / 100));
+    inputVelocity.multiplyScalar(INV_MAX_FPS);
 
-    player.collisionBody.velocity.x += inputVelocity.x;
-    player.collisionBody.velocity.z += inputVelocity.z;
+    collisionBody.velocity.x += inputVelocity.x;
+    collisionBody.velocity.z += inputVelocity.z;
 
-    player.collisionBody.position.copy(player.position);
+    eventEmitter.emit('physics:update', collisionBody.position, data.r);
   });
 
+/*
   eventEmitter.on('player:jump', function() {
     player.collisionBody.velocity.y += 120;
   });
+*/
 
 })();
