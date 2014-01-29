@@ -90,10 +90,10 @@
 
     inputVelocity.set(0, 0, 0);
 
-    if (data.controls.forward) inputVelocity.z -= SPEED;
-    if (data.controls.left) inputVelocity.x -= SPEED;
-    if (data.controls.backward) inputVelocity.z += SPEED;
-    if (data.controls.right) inputVelocity.x += SPEED;
+    if (data.commands.forward) inputVelocity.z -= SPEED;
+    if (data.commands.left) inputVelocity.x -= SPEED;
+    if (data.commands.backward) inputVelocity.z += SPEED;
+    if (data.commands.right) inputVelocity.x += SPEED;
 
     var r = aggregateRotation
       .multiply(inverseLook)
@@ -104,8 +104,8 @@
     data.r.y = r.y;
     data.r.z = r.z;
     aggregateRotation.set(0, 0, 0);
-    aggregateRotation.x += data.controls.mousedy;
-    aggregateRotation.y += data.controls.mousedx;
+    aggregateRotation.x += data.commands.mousedy;
+    aggregateRotation.y += data.commands.mousedx;
 
 
     var euler = new THREE.Euler();

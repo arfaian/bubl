@@ -37,7 +37,8 @@ eventEmitter.on('animate', function() {
         y: player.rotation.y,
         z: player.rotation.z
       },
-      controls: {
+      commands: {
+        clientTick: BL.getClientTick(),
         forward: controls.forward,
         backward: controls.backward,
         left: controls.left,
@@ -47,6 +48,8 @@ eventEmitter.on('animate', function() {
       }
     }
   }
+
+  eventEmitter.emit('user:command', data.commands);
 
   // TODO: move elsewhere
   controls.mousedy = controls.mousedx = 0;

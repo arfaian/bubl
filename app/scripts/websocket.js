@@ -1,23 +1,27 @@
 (function() {
 
   var EventNameReverseLookup = {
-    "session:start": 'a',
-    "incoming.tick": 'b',
-    "outgoing.tick": 'c',
-    "player:leave": 'd'
+    'session:start': 'a',
+    'incoming.tick': 'b',
+    'outgoing.tick': 'c',
+    'player:leave': 'd',
+    'physics:reconciliation': 'e'
   };
 
   var EventNameLookup = {
-    'a': "session:start",
-    'b': "incoming.tick",
-    'c': "outgoing.tick",
-    'd': "player:leave"
+    'a': 'session:start',
+    'b': 'incoming.tick',
+    'c': 'outgoing.tick',
+    'd': 'player:leave',
+    'e': 'physics:reconciliation'
   };
 
-  var ws = new window.WebSocket("ws://127.0.0.1:8080/");
-  ws.binaryType = "arraybuffer";
+  var ws = new window.WebSocket('ws://127.0.0.1:8080/')
+    , PLACEHOLDER = 'placeholder'
+    , tickId
+    ;
 
-  var PLACEHOLDER = 'placeholder';
+  ws.binaryType = 'arraybuffer';
 
   ws.onerror = function() {
     throw 'Could not connect';
@@ -37,8 +41,6 @@
   eventEmitter.on('network:send', function(data) {
     ws.send(data);
   });
-
-  var tickId;
 
   eventEmitter.on('player:pointerlock:enter', function() {
     (function sendTick() {
@@ -75,7 +77,7 @@
       var entity = BL.getEntity(player.id);
       var position = [player.px, player.py, player.pz];
       var rotation = [0, player.ry, player.rz];
-      if (typeof entity === "object" && entity !== null) {
+      if (typeof entity === 'object' && entity !== null) {
         entity.position.fromArray(position);
         entity.rotation.fromArray(rotation);
       } else if (entity === null) {
