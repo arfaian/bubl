@@ -4,7 +4,16 @@
       return dataView.getInt32(2);
     },
     'physics:reconciliation': function(dataView) {
-    
+      var data = {
+        tick: dataView.getInt32(2),
+        px: dataView.getFloat32(6),
+        py: dataView.getFloat32(10),
+        pz: dataView.getFloat32(14),
+        rx: dataView.getFloat32(18),
+        ry: dataView.getFloat32(22),
+        rz: dataView.getFloat32(26)
+      }
+      return data;
     },
     'incoming.tick': function(dataView) {
 

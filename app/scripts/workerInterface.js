@@ -24,7 +24,7 @@ eventEmitter.on('physics:player:create', function(player) {
 });
 
 eventEmitter.on('animate', function() {
-  var data = {
+  var message = {
     name: 'animate',
     data: {
       p: {
@@ -49,12 +49,12 @@ eventEmitter.on('animate', function() {
     }
   }
 
-  eventEmitter.emit('user:command', data.commands);
+  eventEmitter.emit('user:command', message.data.commands);
 
   // TODO: move elsewhere
   controls.mousedy = controls.mousedx = 0;
 
-  worker.postMessage(data);
+  worker.postMessage(message);
 });
 
 eventEmitter.on('physics:update', function(data) {

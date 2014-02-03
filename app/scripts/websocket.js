@@ -42,6 +42,7 @@
     ws.send(data);
   });
 
+  /*
   eventEmitter.on('player:pointerlock:enter', function() {
     (function sendTick() {
       tickId = setTimeout(function() {
@@ -59,6 +60,19 @@
         sendTick();
       }, 30);
     })();
+  });
+  */
+
+  eventEmitter.on('user:command', function(data) {
+    var dataView = new DataView(new ArrayBuffer(72));
+    dataView.setInt32(0, data.clientTick);
+    dataView.setInt8(4, data.forward);
+    dataView.setInt8(5, data.backward);
+    dataView.setInt8(6, data.left);
+    dataView.setInt8(7, data.right);
+    dataView.setFloat32(8, data.mousedx);
+    dataView.setFloat32(40, data.mousedy);
+    eventEmitter.emit('network:send', dataView.buffer);
   });
 
   eventEmitter.on('player:pointerlock:exit', function() {
